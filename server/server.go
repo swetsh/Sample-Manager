@@ -9,6 +9,7 @@ import (
 	"sample-manager/model"
 	pb "sample-manager/proto"
 
+	"github.com/lib/pq"
 	"google.golang.org/grpc"
 )
 
@@ -17,7 +18,14 @@ type server struct {
 }
 
 func (s *server) GetSampleItemID(ctx context.Context, in *pb.GetSampleItemIDRequest) (*pb.GetSampleItemIDResponse, error) {
-	return &pb.GetSampleItemIDResponse{SampleItemId: "sample_item_id_123"}, nil
+	var sampleItem model.SampleItem
+	if err := config.GetDB().Where("item_id = ? AND segments = ?::text[]", in.ItemId, pq.Array(in.ClmSegments)).First(&sampleItem).Error; err != nil {
+		return nil, err
+	}
+
+	sampleItemID := sampleItem.SampleItemID
+
+	return &pb.GetSampleItemIDResponse{SampleItemId: sampleItemID}, nil
 }
 
 func (s *server) CreateSampleItem(ctx context.Context, in *pb.CreateSampleItemRequest) (*pb.CreateSampleItemResponse, error) {
@@ -26,22 +34,12 @@ func (s *server) CreateSampleItem(ctx context.Context, in *pb.CreateSampleItemRe
 	sampleItem := &model.SampleItem{
 		SampleItemID: in.SampleItemId,
 		ItemID:       in.ItemId,
+		Segments:     in.ClmSegments,
 	}
 
 	if err := tx.Create(sampleItem).Error; err != nil {
 		tx.Rollback()
 		return nil, err
-	}
-
-	for _, segment := range in.ClmSegments {
-		newSegment := &model.Segment{
-			Segment:   segment,
-			MappingID: sampleItem.ID,
-		}
-		if err := tx.Create(newSegment).Error; err != nil {
-			tx.Rollback()
-			return nil, err
-		}
 	}
 
 	if err := tx.Commit().Error; err != nil {
