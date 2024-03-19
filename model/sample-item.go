@@ -1,7 +1,7 @@
 package model
 
 type SampleItem struct {
-	ID           uint      `gorm:"primary_key"`
+	ID           uint64    `gorm:"primary_key"`
 	SampleItemID string    `gorm:"unique;not null"`
 	Segments     []Segment `gorm:"foreignKey:MappingID"`
 	ItemID       string

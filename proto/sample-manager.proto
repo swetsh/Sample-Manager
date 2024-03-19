@@ -2,20 +2,26 @@ syntax = "proto3";
 
 option go_package = "./sample-manager";
 
-
-// The sample manager service definition.
-service SampleManager {
-  // Sends a request to get a sample item ID based on CLM segments and item ID.
+service SampleService {
   rpc GetSampleItemID(GetSampleItemIDRequest) returns (GetSampleItemIDResponse);
+  rpc CreateSampleItem(CreateSampleItemRequest) returns (CreateSampleItemResponse);
 }
 
-// The request message containing the CLM segments and item ID.
 message GetSampleItemIDRequest {
-  repeated string clm_segments = 1; // CLM segments is now an array of strings
+  repeated string clm_segments = 1;
   string item_id = 2;
 }
 
-// The response message containing the sample item ID.
 message GetSampleItemIDResponse {
   string sample_item_id = 1;
+}
+
+message CreateSampleItemRequest {
+  string sample_item_id = 1;
+  repeated string clm_segments = 2;
+  string item_id = 3;
+}
+
+message CreateSampleItemResponse {
+  string message = 1;
 }

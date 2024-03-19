@@ -31,7 +31,7 @@ func DatabaseConnection() {
 	)
 
 	d, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	d.AutoMigrate(&model.SampleItem{})
+	d.AutoMigrate(&model.SampleItem{}, &model.Segment{})
 
 	if err != nil {
 		log.Fatal(err)
