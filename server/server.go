@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 
+	"sample-manager/config"
 	pb "sample-manager/proto"
 
 	"google.golang.org/grpc"
@@ -19,7 +20,9 @@ func (s *server) GetSampleItemID(ctx context.Context, in *pb.GetSampleItemIDRequ
 }
 
 func main() {
-	lis, err := net.Listen("tcp", ":8051")
+	config.DatabaseConnection()
+
+	lis, err := net.Listen("tcp", ":8089")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
